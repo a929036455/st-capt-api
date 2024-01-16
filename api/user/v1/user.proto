@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package api.user.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/lulu-ls/st-api/api/user/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.user.v1";
+
+service User {
+	// 修改形象
+	rpc InfoEdit (InfoEditRequest) returns (InfoEditReply) {
+		option (google.api.http) = {
+			post: "/st-games/v1/user/info/edit",
+			body: "*",
+		};
+	};
+}
+
+
+message InfoEditRequest {
+	int64 user_id = 1; // 用户 id
+	int32 appId = 2; // 渠道 id
+	int32 channelId = 3; // 渠道 id
+	int32 figure = 4; // 形象  [(validate.rules).int32 = {gt: 0}]
+	int32 gender = 5; // 性别 0 未知 1 男 2 女
+}
+message InfoEditReply {
+
+}
+
