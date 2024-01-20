@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package api.news.v1;
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+import "api/common/v1/common.proto";
+
+option go_package = "github.com/lulu-ls/st-api/api/news/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.news.v1";
+
+service News {
+
+	rpc GetNews (GetNewsRequest) returns (GetNewsReply){
+		option (google.api.http) = {
+			post: "/st-games/v1/news/get",
+			body: "*",
+		};
+	};
+
+	rpc ListNews (ListNewsRequest) returns (ListNewsReply){
+		option (google.api.http) = {
+			post: "/st-games/v1/news/list",
+			body: "*",
+		};
+	};
+}
+
+
+message GetNewsRequest {
+	int32 appId = 1; // app id
+	int32 channelId = 2; // 渠道 id
+	int32 id = 3;
+}
+message GetNewsReply {
+	int32 news_id = 1;
+	int32 category_id = 2;
+	string title = 3;
+	string subtitle = 4;
+	string information = 5;
+	string image = 6;
+	int32 action = 7;
+	int32 sort = 8;
+	int32 start_at = 9;
+	int32 end_at = 10;
+	int32 status = 11;
+	int64 created_at = 12;
+	int64 updated_at = 13;
+}
+
+message ListNewsRequest {
+	common.v1.Paginate page = 1;
+	int32 app_id = 2; // app id
+	int32 channel_id = 3; // channel id
+	int64 id = 4; // id
+	int64 category_id = 5; // category_id
+}
+message ListNewsReply {
+	repeated GetNewsReply list = 1; // 列表
+	int32 total = 2; // 数量
+}

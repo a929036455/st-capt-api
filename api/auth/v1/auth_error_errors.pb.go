@@ -112,3 +112,59 @@ func IsSmsCodeIsInvalid(err error) bool {
 func ErrorSmsCodeIsInvalid(format string, args ...interface{}) *errors.Error {
 	return errors.New(400, ErrorReason_SMS_CODE_IS_INVALID.String(), fmt.Sprintf(format, args...))
 }
+
+// 密码不一致
+func IsPasswordInconsistency(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_PASSWORD_INCONSISTENCY.String() && e.Code == 400
+}
+
+// 密码不一致
+func ErrorPasswordInconsistency(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_PASSWORD_INCONSISTENCY.String(), fmt.Sprintf(format, args...))
+}
+
+// 用户名重复
+func IsUsernameRepeat(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_USERNAME_REPEAT.String() && e.Code == 400
+}
+
+// 用户名重复
+func ErrorUsernameRepeat(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_USERNAME_REPEAT.String(), fmt.Sprintf(format, args...))
+}
+
+// 用户不存在
+func IsUserDoesNotExist(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_USER_DOES_NOT_EXIST.String() && e.Code == 400
+}
+
+// 用户不存在
+func ErrorUserDoesNotExist(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_USER_DOES_NOT_EXIST.String(), fmt.Sprintf(format, args...))
+}
+
+// 密码错误
+func IsPwdError(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_PWD_ERROR.String() && e.Code == 400
+}
+
+// 密码错误
+func ErrorPwdError(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_PWD_ERROR.String(), fmt.Sprintf(format, args...))
+}

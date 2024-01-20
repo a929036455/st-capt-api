@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.24.4
-// source: auth/v1/auth.proto
+// source: api/auth/v1/auth.proto
 
 package v1
 
@@ -19,16 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Auth_Login_FullMethodName           = "/api.auth.v1.Auth/Login"
-	Auth_LoginForApp_FullMethodName     = "/api.auth.v1.Auth/LoginForApp"
-	Auth_LoginTest_FullMethodName       = "/api.auth.v1.Auth/LoginTest"
-	Auth_Decrypt_FullMethodName         = "/api.auth.v1.Auth/Decrypt"
-	Auth_GetInfo_FullMethodName         = "/api.auth.v1.Auth/GetInfo"
-	Auth_SendCode_FullMethodName        = "/api.auth.v1.Auth/SendCode"
-	Auth_VerifyLoginCode_FullMethodName = "/api.auth.v1.Auth/VerifyLoginCode"
-	Auth_VerifyBindCode_FullMethodName  = "/api.auth.v1.Auth/VerifyBindCode"
-	Auth_LoginByApple_FullMethodName    = "/api.auth.v1.Auth/LoginByApple"
-	Auth_LoginByPhone_FullMethodName    = "/api.auth.v1.Auth/LoginByPhone"
+	Auth_Login_FullMethodName               = "/api.auth.v1.Auth/Login"
+	Auth_LoginForApp_FullMethodName         = "/api.auth.v1.Auth/LoginForApp"
+	Auth_LoginForPwd_FullMethodName         = "/api.auth.v1.Auth/LoginForPwd"
+	Auth_LoginTest_FullMethodName           = "/api.auth.v1.Auth/LoginTest"
+	Auth_Decrypt_FullMethodName             = "/api.auth.v1.Auth/Decrypt"
+	Auth_GetInfo_FullMethodName             = "/api.auth.v1.Auth/GetInfo"
+	Auth_SendCode_FullMethodName            = "/api.auth.v1.Auth/SendCode"
+	Auth_Register_FullMethodName            = "/api.auth.v1.Auth/Register"
+	Auth_VerifyLoginCode_FullMethodName     = "/api.auth.v1.Auth/VerifyLoginCode"
+	Auth_VerifyBindCode_FullMethodName      = "/api.auth.v1.Auth/VerifyBindCode"
+	Auth_VerifyRegisterCode_FullMethodName  = "/api.auth.v1.Auth/VerifyRegisterCode"
+	Auth_VerifyForgotPwdCode_FullMethodName = "/api.auth.v1.Auth/VerifyForgotPwdCode"
+	Auth_UpPwdByForgotPwd_FullMethodName    = "/api.auth.v1.Auth/UpPwdByForgotPwd"
+	Auth_LoginByApple_FullMethodName        = "/api.auth.v1.Auth/LoginByApple"
+	Auth_LoginByPhone_FullMethodName        = "/api.auth.v1.Auth/LoginByPhone"
 )
 
 // AuthClient is the client API for Auth service.
@@ -39,6 +44,8 @@ type AuthClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error)
 	// app 登录
 	LoginForApp(ctx context.Context, in *LoginForAppRequest, opts ...grpc.CallOption) (*LoginForAppReply, error)
+	// app 登录for pwd
+	LoginForPwd(ctx context.Context, in *LoginForPwdRequest, opts ...grpc.CallOption) (*LoginReply, error)
 	// 测试登录
 	LoginTest(ctx context.Context, in *LoginTestRequest, opts ...grpc.CallOption) (*LoginReply, error)
 	// 解密
@@ -47,10 +54,17 @@ type AuthClient interface {
 	GetInfo(ctx context.Context, in *GetInfoRequest, opts ...grpc.CallOption) (*LoginReply, error)
 	// 注册短信
 	SendCode(ctx context.Context, in *SendCodeRequest, opts ...grpc.CallOption) (*SendCodeReply, error)
+	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*LoginReply, error)
 	// 验证登录短信
 	VerifyLoginCode(ctx context.Context, in *VerifyLoginCodeRequest, opts ...grpc.CallOption) (*LoginReply, error)
 	// 验证绑定短信
 	VerifyBindCode(ctx context.Context, in *VerifyBindCodeRequest, opts ...grpc.CallOption) (*LoginReply, error)
+	// 验证注册短信
+	VerifyRegisterCode(ctx context.Context, in *VerifyRegisterCodeRequest, opts ...grpc.CallOption) (*VerifyRegisterCodeReply, error)
+	// 验证找回密码短信
+	VerifyForgotPwdCode(ctx context.Context, in *VerifyRegisterCodeRequest, opts ...grpc.CallOption) (*VerifyRegisterCodeReply, error)
+	// 忘记密码修改密码
+	UpPwdByForgotPwd(ctx context.Context, in *UpPwdByForgotPwdRequest, opts ...grpc.CallOption) (*UpPwdByForgotPwdReply, error)
 	// 苹果登录
 	LoginByApple(ctx context.Context, in *LoginByAppleRequest, opts ...grpc.CallOption) (*LoginReply, error)
 	// 微信手机号登录
@@ -77,6 +91,15 @@ func (c *authClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.C
 func (c *authClient) LoginForApp(ctx context.Context, in *LoginForAppRequest, opts ...grpc.CallOption) (*LoginForAppReply, error) {
 	out := new(LoginForAppReply)
 	err := c.cc.Invoke(ctx, Auth_LoginForApp_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) LoginForPwd(ctx context.Context, in *LoginForPwdRequest, opts ...grpc.CallOption) (*LoginReply, error) {
+	out := new(LoginReply)
+	err := c.cc.Invoke(ctx, Auth_LoginForPwd_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +142,15 @@ func (c *authClient) SendCode(ctx context.Context, in *SendCodeRequest, opts ...
 	return out, nil
 }
 
+func (c *authClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*LoginReply, error) {
+	out := new(LoginReply)
+	err := c.cc.Invoke(ctx, Auth_Register_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authClient) VerifyLoginCode(ctx context.Context, in *VerifyLoginCodeRequest, opts ...grpc.CallOption) (*LoginReply, error) {
 	out := new(LoginReply)
 	err := c.cc.Invoke(ctx, Auth_VerifyLoginCode_FullMethodName, in, out, opts...)
@@ -131,6 +163,33 @@ func (c *authClient) VerifyLoginCode(ctx context.Context, in *VerifyLoginCodeReq
 func (c *authClient) VerifyBindCode(ctx context.Context, in *VerifyBindCodeRequest, opts ...grpc.CallOption) (*LoginReply, error) {
 	out := new(LoginReply)
 	err := c.cc.Invoke(ctx, Auth_VerifyBindCode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) VerifyRegisterCode(ctx context.Context, in *VerifyRegisterCodeRequest, opts ...grpc.CallOption) (*VerifyRegisterCodeReply, error) {
+	out := new(VerifyRegisterCodeReply)
+	err := c.cc.Invoke(ctx, Auth_VerifyRegisterCode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) VerifyForgotPwdCode(ctx context.Context, in *VerifyRegisterCodeRequest, opts ...grpc.CallOption) (*VerifyRegisterCodeReply, error) {
+	out := new(VerifyRegisterCodeReply)
+	err := c.cc.Invoke(ctx, Auth_VerifyForgotPwdCode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) UpPwdByForgotPwd(ctx context.Context, in *UpPwdByForgotPwdRequest, opts ...grpc.CallOption) (*UpPwdByForgotPwdReply, error) {
+	out := new(UpPwdByForgotPwdReply)
+	err := c.cc.Invoke(ctx, Auth_UpPwdByForgotPwd_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -163,6 +222,8 @@ type AuthServer interface {
 	Login(context.Context, *LoginRequest) (*LoginReply, error)
 	// app 登录
 	LoginForApp(context.Context, *LoginForAppRequest) (*LoginForAppReply, error)
+	// app 登录for pwd
+	LoginForPwd(context.Context, *LoginForPwdRequest) (*LoginReply, error)
 	// 测试登录
 	LoginTest(context.Context, *LoginTestRequest) (*LoginReply, error)
 	// 解密
@@ -171,10 +232,17 @@ type AuthServer interface {
 	GetInfo(context.Context, *GetInfoRequest) (*LoginReply, error)
 	// 注册短信
 	SendCode(context.Context, *SendCodeRequest) (*SendCodeReply, error)
+	Register(context.Context, *RegisterRequest) (*LoginReply, error)
 	// 验证登录短信
 	VerifyLoginCode(context.Context, *VerifyLoginCodeRequest) (*LoginReply, error)
 	// 验证绑定短信
 	VerifyBindCode(context.Context, *VerifyBindCodeRequest) (*LoginReply, error)
+	// 验证注册短信
+	VerifyRegisterCode(context.Context, *VerifyRegisterCodeRequest) (*VerifyRegisterCodeReply, error)
+	// 验证找回密码短信
+	VerifyForgotPwdCode(context.Context, *VerifyRegisterCodeRequest) (*VerifyRegisterCodeReply, error)
+	// 忘记密码修改密码
+	UpPwdByForgotPwd(context.Context, *UpPwdByForgotPwdRequest) (*UpPwdByForgotPwdReply, error)
 	// 苹果登录
 	LoginByApple(context.Context, *LoginByAppleRequest) (*LoginReply, error)
 	// 微信手机号登录
@@ -192,6 +260,9 @@ func (UnimplementedAuthServer) Login(context.Context, *LoginRequest) (*LoginRepl
 func (UnimplementedAuthServer) LoginForApp(context.Context, *LoginForAppRequest) (*LoginForAppReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginForApp not implemented")
 }
+func (UnimplementedAuthServer) LoginForPwd(context.Context, *LoginForPwdRequest) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginForPwd not implemented")
+}
 func (UnimplementedAuthServer) LoginTest(context.Context, *LoginTestRequest) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginTest not implemented")
 }
@@ -204,11 +275,23 @@ func (UnimplementedAuthServer) GetInfo(context.Context, *GetInfoRequest) (*Login
 func (UnimplementedAuthServer) SendCode(context.Context, *SendCodeRequest) (*SendCodeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCode not implemented")
 }
+func (UnimplementedAuthServer) Register(context.Context, *RegisterRequest) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
 func (UnimplementedAuthServer) VerifyLoginCode(context.Context, *VerifyLoginCodeRequest) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyLoginCode not implemented")
 }
 func (UnimplementedAuthServer) VerifyBindCode(context.Context, *VerifyBindCodeRequest) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyBindCode not implemented")
+}
+func (UnimplementedAuthServer) VerifyRegisterCode(context.Context, *VerifyRegisterCodeRequest) (*VerifyRegisterCodeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyRegisterCode not implemented")
+}
+func (UnimplementedAuthServer) VerifyForgotPwdCode(context.Context, *VerifyRegisterCodeRequest) (*VerifyRegisterCodeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyForgotPwdCode not implemented")
+}
+func (UnimplementedAuthServer) UpPwdByForgotPwd(context.Context, *UpPwdByForgotPwdRequest) (*UpPwdByForgotPwdReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpPwdByForgotPwd not implemented")
 }
 func (UnimplementedAuthServer) LoginByApple(context.Context, *LoginByAppleRequest) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByApple not implemented")
@@ -261,6 +344,24 @@ func _Auth_LoginForApp_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServer).LoginForApp(ctx, req.(*LoginForAppRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_LoginForPwd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginForPwdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).LoginForPwd(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_LoginForPwd_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).LoginForPwd(ctx, req.(*LoginForPwdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -337,6 +438,24 @@ func _Auth_SendCode_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).Register(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_Register_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).Register(ctx, req.(*RegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Auth_VerifyLoginCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(VerifyLoginCodeRequest)
 	if err := dec(in); err != nil {
@@ -369,6 +488,60 @@ func _Auth_VerifyBindCode_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServer).VerifyBindCode(ctx, req.(*VerifyBindCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_VerifyRegisterCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyRegisterCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).VerifyRegisterCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_VerifyRegisterCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).VerifyRegisterCode(ctx, req.(*VerifyRegisterCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_VerifyForgotPwdCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyRegisterCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).VerifyForgotPwdCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_VerifyForgotPwdCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).VerifyForgotPwdCode(ctx, req.(*VerifyRegisterCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_UpPwdByForgotPwd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpPwdByForgotPwdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).UpPwdByForgotPwd(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_UpPwdByForgotPwd_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).UpPwdByForgotPwd(ctx, req.(*UpPwdByForgotPwdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -425,6 +598,10 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Auth_LoginForApp_Handler,
 		},
 		{
+			MethodName: "LoginForPwd",
+			Handler:    _Auth_LoginForPwd_Handler,
+		},
+		{
 			MethodName: "LoginTest",
 			Handler:    _Auth_LoginTest_Handler,
 		},
@@ -441,12 +618,28 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Auth_SendCode_Handler,
 		},
 		{
+			MethodName: "Register",
+			Handler:    _Auth_Register_Handler,
+		},
+		{
 			MethodName: "VerifyLoginCode",
 			Handler:    _Auth_VerifyLoginCode_Handler,
 		},
 		{
 			MethodName: "VerifyBindCode",
 			Handler:    _Auth_VerifyBindCode_Handler,
+		},
+		{
+			MethodName: "VerifyRegisterCode",
+			Handler:    _Auth_VerifyRegisterCode_Handler,
+		},
+		{
+			MethodName: "VerifyForgotPwdCode",
+			Handler:    _Auth_VerifyForgotPwdCode_Handler,
+		},
+		{
+			MethodName: "UpPwdByForgotPwd",
+			Handler:    _Auth_UpPwdByForgotPwd_Handler,
 		},
 		{
 			MethodName: "LoginByApple",
@@ -458,5 +651,5 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "auth/v1/auth.proto",
+	Metadata: "api/auth/v1/auth.proto",
 }

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.7.1
 // - protoc             v4.24.4
-// source: auth/v1/auth.proto
+// source: api/auth/v1/auth.proto
 
 package v1
 
@@ -24,10 +24,15 @@ const OperationAuthGetInfo = "/api.auth.v1.Auth/GetInfo"
 const OperationAuthLogin = "/api.auth.v1.Auth/Login"
 const OperationAuthLoginByApple = "/api.auth.v1.Auth/LoginByApple"
 const OperationAuthLoginForApp = "/api.auth.v1.Auth/LoginForApp"
+const OperationAuthLoginForPwd = "/api.auth.v1.Auth/LoginForPwd"
 const OperationAuthLoginTest = "/api.auth.v1.Auth/LoginTest"
+const OperationAuthRegister = "/api.auth.v1.Auth/Register"
 const OperationAuthSendCode = "/api.auth.v1.Auth/SendCode"
+const OperationAuthUpPwdByForgotPwd = "/api.auth.v1.Auth/UpPwdByForgotPwd"
 const OperationAuthVerifyBindCode = "/api.auth.v1.Auth/VerifyBindCode"
+const OperationAuthVerifyForgotPwdCode = "/api.auth.v1.Auth/VerifyForgotPwdCode"
 const OperationAuthVerifyLoginCode = "/api.auth.v1.Auth/VerifyLoginCode"
+const OperationAuthVerifyRegisterCode = "/api.auth.v1.Auth/VerifyRegisterCode"
 
 type AuthHTTPServer interface {
 	// Decrypt 解密
@@ -40,26 +45,40 @@ type AuthHTTPServer interface {
 	LoginByApple(context.Context, *LoginByAppleRequest) (*LoginReply, error)
 	// LoginForApp app 登录
 	LoginForApp(context.Context, *LoginForAppRequest) (*LoginForAppReply, error)
+	// LoginForPwd app 登录for pwd
+	LoginForPwd(context.Context, *LoginForPwdRequest) (*LoginReply, error)
 	// LoginTest 测试登录
 	LoginTest(context.Context, *LoginTestRequest) (*LoginReply, error)
+	Register(context.Context, *RegisterRequest) (*LoginReply, error)
 	// SendCode 注册短信
 	SendCode(context.Context, *SendCodeRequest) (*SendCodeReply, error)
+	// UpPwdByForgotPwd 忘记密码修改密码
+	UpPwdByForgotPwd(context.Context, *UpPwdByForgotPwdRequest) (*UpPwdByForgotPwdReply, error)
 	// VerifyBindCode 验证绑定短信
 	VerifyBindCode(context.Context, *VerifyBindCodeRequest) (*LoginReply, error)
+	// VerifyForgotPwdCode 验证找回密码短信
+	VerifyForgotPwdCode(context.Context, *VerifyRegisterCodeRequest) (*VerifyRegisterCodeReply, error)
 	// VerifyLoginCode 验证登录短信
 	VerifyLoginCode(context.Context, *VerifyLoginCodeRequest) (*LoginReply, error)
+	// VerifyRegisterCode 验证注册短信
+	VerifyRegisterCode(context.Context, *VerifyRegisterCodeRequest) (*VerifyRegisterCodeReply, error)
 }
 
 func RegisterAuthHTTPServer(s *http.Server, srv AuthHTTPServer) {
 	r := s.Route("/")
 	r.POST("/st-games/v1/auth/login", _Auth_Login0_HTTP_Handler(srv))
 	r.POST("/st-games/v1/auth/login/app", _Auth_LoginForApp0_HTTP_Handler(srv))
+	r.POST("/st-games/v1/auth/login/pwd", _Auth_LoginForPwd0_HTTP_Handler(srv))
 	r.POST("/st-games/v1/auth/login_test", _Auth_LoginTest0_HTTP_Handler(srv))
 	r.POST("/st-games/v1/auth/decrypt", _Auth_Decrypt0_HTTP_Handler(srv))
 	r.POST("/st-games/v1/auth/get_info", _Auth_GetInfo0_HTTP_Handler(srv))
 	r.POST("/st-games/v1/auth/code/send", _Auth_SendCode0_HTTP_Handler(srv))
+	r.POST("/st-games/v1/auth/register", _Auth_Register0_HTTP_Handler(srv))
 	r.POST("/st-games/v1/auth/code/login/verify", _Auth_VerifyLoginCode0_HTTP_Handler(srv))
 	r.POST("/st-games/v1/auth/code/bind/verify", _Auth_VerifyBindCode0_HTTP_Handler(srv))
+	r.POST("/st-games/v1/auth/code/register/verify", _Auth_VerifyRegisterCode0_HTTP_Handler(srv))
+	r.POST("/st-games/v1/auth/code/forgot_pwd/verify", _Auth_VerifyForgotPwdCode0_HTTP_Handler(srv))
+	r.POST("/st-games/v1/auth/forgot_pwd/update", _Auth_UpPwdByForgotPwd0_HTTP_Handler(srv))
 	r.POST("/st-games/v1/auth/login/apple", _Auth_LoginByApple0_HTTP_Handler(srv))
 }
 
@@ -103,6 +122,28 @@ func _Auth_LoginForApp0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Context) 
 			return err
 		}
 		reply := out.(*LoginForAppReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Auth_LoginForPwd0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginForPwdRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthLoginForPwd)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LoginForPwd(ctx, req.(*LoginForPwdRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -195,6 +236,28 @@ func _Auth_SendCode0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Context) err
 	}
 }
 
+func _Auth_Register0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RegisterRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthRegister)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Register(ctx, req.(*RegisterRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Auth_VerifyLoginCode0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in VerifyLoginCodeRequest
@@ -239,6 +302,72 @@ func _Auth_VerifyBindCode0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Contex
 	}
 }
 
+func _Auth_VerifyRegisterCode0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in VerifyRegisterCodeRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthVerifyRegisterCode)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.VerifyRegisterCode(ctx, req.(*VerifyRegisterCodeRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*VerifyRegisterCodeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Auth_VerifyForgotPwdCode0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in VerifyRegisterCodeRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthVerifyForgotPwdCode)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.VerifyForgotPwdCode(ctx, req.(*VerifyRegisterCodeRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*VerifyRegisterCodeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Auth_UpPwdByForgotPwd0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpPwdByForgotPwdRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthUpPwdByForgotPwd)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpPwdByForgotPwd(ctx, req.(*UpPwdByForgotPwdRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*UpPwdByForgotPwdReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Auth_LoginByApple0_HTTP_Handler(srv AuthHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in LoginByAppleRequest
@@ -267,10 +396,15 @@ type AuthHTTPClient interface {
 	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByApple(ctx context.Context, req *LoginByAppleRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginForApp(ctx context.Context, req *LoginForAppRequest, opts ...http.CallOption) (rsp *LoginForAppReply, err error)
+	LoginForPwd(ctx context.Context, req *LoginForPwdRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginTest(ctx context.Context, req *LoginTestRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
+	Register(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
 	SendCode(ctx context.Context, req *SendCodeRequest, opts ...http.CallOption) (rsp *SendCodeReply, err error)
+	UpPwdByForgotPwd(ctx context.Context, req *UpPwdByForgotPwdRequest, opts ...http.CallOption) (rsp *UpPwdByForgotPwdReply, err error)
 	VerifyBindCode(ctx context.Context, req *VerifyBindCodeRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
+	VerifyForgotPwdCode(ctx context.Context, req *VerifyRegisterCodeRequest, opts ...http.CallOption) (rsp *VerifyRegisterCodeReply, err error)
 	VerifyLoginCode(ctx context.Context, req *VerifyLoginCodeRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
+	VerifyRegisterCode(ctx context.Context, req *VerifyRegisterCodeRequest, opts ...http.CallOption) (rsp *VerifyRegisterCodeReply, err error)
 }
 
 type AuthHTTPClientImpl struct {
@@ -346,11 +480,37 @@ func (c *AuthHTTPClientImpl) LoginForApp(ctx context.Context, in *LoginForAppReq
 	return &out, err
 }
 
+func (c *AuthHTTPClientImpl) LoginForPwd(ctx context.Context, in *LoginForPwdRequest, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/st-games/v1/auth/login/pwd"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthLoginForPwd))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *AuthHTTPClientImpl) LoginTest(ctx context.Context, in *LoginTestRequest, opts ...http.CallOption) (*LoginReply, error) {
 	var out LoginReply
 	pattern := "/st-games/v1/auth/login_test"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAuthLoginTest))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AuthHTTPClientImpl) Register(ctx context.Context, in *RegisterRequest, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/st-games/v1/auth/register"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthRegister))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -372,6 +532,19 @@ func (c *AuthHTTPClientImpl) SendCode(ctx context.Context, in *SendCodeRequest, 
 	return &out, err
 }
 
+func (c *AuthHTTPClientImpl) UpPwdByForgotPwd(ctx context.Context, in *UpPwdByForgotPwdRequest, opts ...http.CallOption) (*UpPwdByForgotPwdReply, error) {
+	var out UpPwdByForgotPwdReply
+	pattern := "/st-games/v1/auth/forgot_pwd/update"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthUpPwdByForgotPwd))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *AuthHTTPClientImpl) VerifyBindCode(ctx context.Context, in *VerifyBindCodeRequest, opts ...http.CallOption) (*LoginReply, error) {
 	var out LoginReply
 	pattern := "/st-games/v1/auth/code/bind/verify"
@@ -385,11 +558,37 @@ func (c *AuthHTTPClientImpl) VerifyBindCode(ctx context.Context, in *VerifyBindC
 	return &out, err
 }
 
+func (c *AuthHTTPClientImpl) VerifyForgotPwdCode(ctx context.Context, in *VerifyRegisterCodeRequest, opts ...http.CallOption) (*VerifyRegisterCodeReply, error) {
+	var out VerifyRegisterCodeReply
+	pattern := "/st-games/v1/auth/code/forgot_pwd/verify"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthVerifyForgotPwdCode))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *AuthHTTPClientImpl) VerifyLoginCode(ctx context.Context, in *VerifyLoginCodeRequest, opts ...http.CallOption) (*LoginReply, error) {
 	var out LoginReply
 	pattern := "/st-games/v1/auth/code/login/verify"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAuthVerifyLoginCode))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AuthHTTPClientImpl) VerifyRegisterCode(ctx context.Context, in *VerifyRegisterCodeRequest, opts ...http.CallOption) (*VerifyRegisterCodeReply, error) {
+	var out VerifyRegisterCodeReply
+	pattern := "/st-games/v1/auth/code/register/verify"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthVerifyRegisterCode))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

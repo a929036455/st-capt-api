@@ -26,6 +26,14 @@ service Auth {
     };
   };
 
+  // app 登录for pwd
+  rpc LoginForPwd (LoginForPwdRequest) returns (LoginReply){
+    option (google.api.http) = {
+      post: "/st-games/v1/auth/login/pwd",
+      body: "*",
+    };
+  };
+
   // 测试登录
   rpc LoginTest (LoginTestRequest) returns (LoginReply){
     option (google.api.http) = {
@@ -58,6 +66,14 @@ service Auth {
     };
   };
 
+  rpc Register (RegisterRequest) returns (LoginReply){
+    option (google.api.http) = {
+      post: "/st-games/v1/auth/register",
+      body: "*",
+    };
+  };
+
+
   // 验证登录短信
   rpc VerifyLoginCode (VerifyLoginCodeRequest) returns (LoginReply) {
     option (google.api.http) = {
@@ -70,6 +86,30 @@ service Auth {
   rpc VerifyBindCode (VerifyBindCodeRequest) returns (LoginReply) {
     option (google.api.http) = {
       post: "/st-games/v1/auth/code/bind/verify",
+      body: "*",
+    };
+  };
+
+  // 验证注册短信
+  rpc VerifyRegisterCode (VerifyRegisterCodeRequest) returns (VerifyRegisterCodeReply) {
+    option (google.api.http) = {
+      post: "/st-games/v1/auth/code/register/verify",
+      body: "*",
+    };
+  };
+
+  // 验证找回密码短信
+  rpc VerifyForgotPwdCode (VerifyRegisterCodeRequest) returns (VerifyRegisterCodeReply) {
+    option (google.api.http) = {
+      post: "/st-games/v1/auth/code/forgot_pwd/verify",
+      body: "*",
+    };
+  };
+
+  // 忘记密码修改密码
+  rpc  UpPwdByForgotPwd(UpPwdByForgotPwdRequest) returns (UpPwdByForgotPwdReply) {
+    option (google.api.http) = {
+      post: "/st-games/v1/auth/forgot_pwd/update",
       body: "*",
     };
   };
@@ -91,9 +131,36 @@ enum VerifyCodeType {
   _ = 0; // ignore
   LOGIN = 1; // 登录
   BIND = 2; // 绑定
-  //	RESET_PASSWORD = 2; // 重置密码
+  REGISTER = 3; //注册
+  FORGOT_PASSWORD =4; //注册
 }
 
+message RegisterRequest {
+  int32 appId = 2; // 渠道 id
+  int32 channelId = 3; // 渠道 id
+  int32 agree = 4; //同意协议
+  string user_name = 5 [(validate.rules).string.min_len =  6,(validate.rules).string.max_len=12]; //用户名
+  string password =6;
+  string repeat_password =7;
+  string encrypt = 8;
+}
+message UpPwdByForgotPwdRequest {
+  int32 appId = 2; // 渠道 id
+  int32 channelId = 3; // 渠道 id
+  string password =6;
+  string repeat_password =7;
+  string encrypt = 8;
+}
+
+message UpPwdByForgotPwdReply {
+}
+
+message LoginForPwdRequest{
+  int32 appId = 2; // 渠道 id
+  int32 channelId = 3; // 渠道 id
+  string user_name = 5 [(validate.rules).string.min_len =  6,(validate.rules).string.max_len=12]; //用户名
+  string password =6;
+}
 
 message LoginRequest {
   string code = 1 [(validate.rules).string.min_len =  5];
@@ -173,6 +240,8 @@ message LoginUser {
   int32 ticket = 12;
   int64 user_id = 13;
   int32 figure = 14; // 形象
+  string user_name = 15;
+  int32 agree = 16;
 }
 
 message Common {
@@ -215,6 +284,13 @@ message VerifyBindCodeRequest {
   string phone = 5 [(validate.rules).string.len =  11]; // 手机号
 }
 
+message VerifyRegisterCodeRequest {
+  int32 appId = 1; // app id
+  int32 channelId = 2; // 渠道 id
+  string code = 4 [(validate.rules).string.min_len =  4]; // 验证码
+  string phone = 5 [(validate.rules).string.len =  11]; // 手机号
+}
+
 message LoginByAppleRequest {
   int32 appId = 1; // app id
   int32 channelId = 2; // 渠道 id
@@ -225,4 +301,8 @@ message LoginByAppleRequest {
 message LoginByPhoneReply{
   string phone = 1; // 没有区号的手机号
   string code = 2; // 区号
+}
+
+message VerifyRegisterCodeReply{
+  string encrypt = 1; // 手机号加密串
 }

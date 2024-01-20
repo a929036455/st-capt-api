@@ -26,4 +26,8 @@ enum ErrorReason {
   LOGIN_USER_NO_NOT_ENOUGH = 12 [(errors.code) = 402];
 
   SMS_CODE_IS_INVALID = 13 [(errors.code) = 400]; // 验证码错误
+  PASSWORD_INCONSISTENCY = 14 [(errors.code) = 400]; // 密码不一致
+  USERNAME_REPEAT = 15 [(errors.code) = 400]; // 用户名重复
+  USER_DOES_NOT_EXIST = 16 [(errors.code) = 400]; // 用户不存在
+  PWD_ERROR = 17 [(errors.code) = 400]; // 密码错误
 }
